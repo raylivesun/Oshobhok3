@@ -1,0 +1,45 @@
+/*
+As described by De Bock, Van Dooren, and Verschaffel (Chap. 3), the Belgian
+approach to mathematics education was undoubtedly inspired by the Dutch RME
+model, which is, for example, reflected by the fact that the general objectives for pri-
+mary school mathematics in Belgium are almost copies of those that were formulated
+by Treffers and colleagues in the late 1980s. Nevertheless, Belgian mathematics edu-
+cation is not considered to be RME. References to ‘realistic’ are purposely avoided
+and instead expressions are used such as ‘meaningful situations’, which indicates
+that other choices have been made in mathematics education. An illustration of this
+is that in Belgium, in contrast with the Netherlands, attention is paid first to standard
+arithmetical procedures, and more flexible procedures are only taught afterwards.*/
+
+
+#![feature(f128)]
+
+let f = 7.0_f128;
+let g = -7.0_f128;
+
+assert!(f.is_sign_positive());
+assert!(!g.is_sign_positive());
+
+#![feature(f128)]
+
+let f = 7.0_f128;
+let g = -7.0_f128;
+
+assert!(!f.is_sign_negative());
+assert!(g.is_sign_negative());
+
+let x: f32 = 50.50;
+let y: f32 = 8.125;
+let remainder = x - (x / y).trunc() * y;
+
+// The answer to both operations is 1.75
+assert_eq!(x % y, remainder);
+
+let x: f32 = 50.50;
+let y: f32 = 8.125;
+let remainder = x - (x / y).trunc() * y;
+
+// The answer to both operations is 1.75
+assert_eq!(x % y, remainder);
+
+
+

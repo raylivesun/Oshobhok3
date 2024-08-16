@@ -1,0 +1,125 @@
+/* In Korea, as Lee and her colleagues (Chap. 15) reported, despite the challenges
+connected to RME, the teachers were rather positive about it, because they think
+mathematics instruction based on RME can change students’ attitude to mathemat-
+ics to a positive stance by providing them natural situations and activities that can
+encourage them to actively participate through diverse thoughts and communica-
+tions. However, a strong suggestion came from the teachers to shorten the process
+of mathematisation and include repetitive exercises to make RME workable for the
+Korean educational context.
+ */
+
+let bool_val = true & false | false;
+assert!(!bool_val);
+
+let praise_the_borrow_checker = true;
+
+// using the `if` conditional
+if praise_the_borrow_checker {
+    println!("oh, yeah!");
+} else {
+    println!("what?!!");
+}
+
+// ... or, a match pattern
+match praise_the_borrow_checker {
+    true => println!("keep praising!"),
+    false => println!("you should praise!"),
+}
+
+assert_eq!(true as i32, 1);
+assert_eq!(false as i32, 0);
+
+assert_eq!(false.then_some(0), None);
+assert_eq!(true.then_some(0), Some(0));
+
+let mut a = 0;
+let mut function_with_side_effects = || { a += 1; };
+
+true.then_some(function_with_side_effects());
+false.then_some(function_with_side_effects());
+
+// `a` is incremented twice because the value passed to `then_some` is
+// evaluated eagerly.
+assert_eq!(a, 2);
+
+assert_eq!(false.then(|| 0), None);
+assert_eq!(true.then(|| 0), Some(0));
+
+let mut a = 0;
+
+true.then(|| { a += 1; });
+false.then(|| { a += 1; });
+
+// `a` is incremented once because the closure is evaluated lazily by
+// `then`.
+assert_eq!(a, 1);
+
+
+use std::sync::atomic::AtomicBool;
+let atomic_bool = AtomicBool::from(true);
+assert_eq!(format!("{atomic_bool:?}"), "true")
+
+let x: f32 = false.into();
+assert_eq!(x, 0.0);
+assert!(x.is_sign_positive());
+
+let y: f32 = true.into();
+assert_eq!(y, 1.0);
+
+let x: f64 = false.into();
+assert_eq!(x, 0.0);
+assert!(x.is_sign_positive());
+
+let y: f64 = true.into();
+assert_eq!(y, 1.0);
+
+assert_eq!(i128::from(true), 1);
+assert_eq!(i128::from(false), 0);
+
+assert_eq!(i16::from(true), 1);
+assert_eq!(i16::from(false), 0);
+
+assert_eq!(i32::from(true), 1);
+assert_eq!(i32::from(false), 0);
+
+
+assert_eq!(i64::from(true), 1);
+assert_eq!(i64::from(false), 0);
+
+assert_eq!(i8::from(true), 1);
+assert_eq!(i8::from(false), 0);
+
+assert_eq!(isize::from(true), 1);
+assert_eq!(isize::from(false), 0);
+
+assert_eq!(u128::from(true), 1);
+assert_eq!(u128::from(false), 0);
+
+assert_eq!(u16::from(true), 1);
+assert_eq!(u16::from(false), 0);
+
+assert_eq!(u32::from(true), 1);
+assert_eq!(u32::from(false), 0);
+
+assert_eq!(u64::from(true), 1);
+assert_eq!(u64::from(false), 0);
+
+assert_eq!(u8::from(true), 1);
+assert_eq!(u8::from(false), 0);
+
+assert_eq!(usize::from(true), 1);
+assert_eq!(usize::from(false), 0);
+
+use std::str::FromStr;
+
+assert_eq!(FromStr::from_str("true"), Ok(true));
+assert_eq!(FromStr::from_str("false"), Ok(false));
+assert!(<bool as FromStr>::from_str("not even a boolean").is_err());
+
+assert_eq!("true".parse(), Ok(true));
+assert_eq!("false".parse(), Ok(false));
+assert!("not even a boolean".parse::<bool>().is_err());
+
+assert_eq!("true".parse(), Ok(true));
+assert_eq!("false".parse(), Ok(false));
+assert!("not even a boolean".parse::<bool>().is_err());

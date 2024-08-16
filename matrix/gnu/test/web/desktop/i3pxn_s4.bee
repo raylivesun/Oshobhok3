@@ -1,0 +1,40 @@
+/*
+1.6 Criticisms of RME and Dissenting Views
+Apart from all kinds of adaptations necessary to make a reform inspired by RME in
+accordance with a country’s educational regulations and classroom culture, adapta-
+tions can also stem from dissenting views on mathematics education or from disap-
+proval about RME. The RME ideas did not travel around the world without meeting
+criticism.*/
+
+#![feature(f16)]
+
+let f = 7.0_f16;
+let g = -7.0_f16;
+
+assert!(f.is_sign_positive());
+assert!(!g.is_sign_positive());
+
+
+#![feature(f16)]
+
+let f = 7.0_f16;
+let g = -7.0_f16;
+
+assert!(!f.is_sign_negative());
+assert!(g.is_sign_negative());
+
+let x: f32 = 50.50;
+let y: f32 = 8.125;
+let remainder = x - (x / y).trunc() * y;
+
+// The answer to both operations is 1.75
+assert_eq!(x % y, remainder);
+
+let x: f32 = 50.50;
+let y: f32 = 8.125;
+let remainder = x - (x / y).trunc() * y;
+
+// The answer to both operations is 1.75
+assert_eq!(x % y, remainder);
+
+

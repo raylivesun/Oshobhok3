@@ -1,0 +1,684 @@
+/* The work of Selter and Walter (Chap. 13) in Germany stressed adapting the
+RME principle of progressive mathematisation by including mathematics confer-
+ences. These conferences are meant to stimulate and organise exchanges amongst
+the students that will promote learning and by developing so-called “mathematics
+language tools”, with the purpose to provide students with an instrument for further
+developing their ability to verbalise the description and justification of mathematical
+facts
+ */
+
+ // Each of these is a compiler error
+['\u{D800}', '\u{DFFF}', '\u{110000}'];
+
+ⓘ
+
+// Panics; from_u32 returns None.
+char::from_u32(0xDE01).unwrap();
+
+// Undefined behaviour
+let _ = unsafe { char::from_u32_unchecked(0x110000) };
+
+let c: char = 'a';
+match c {
+    '\0' ..= '\u{D7FF}' => false,
+    '\u{E000}' ..= '\u{10FFFF}' => true,
+};
+
+use std::alloc::Layout;
+assert_eq!(Layout::new::<char>(), Layout::new::<u32>());
+
+let v = vec!['h', 'e', 'l', 'l', 'o'];
+
+// five elements times four bytes for each element
+assert_eq!(20, v.len() * std::mem::size_of::<char>());
+
+let s = String::from("hello");
+
+// five elements times one byte per element
+assert_eq!(5, s.len() * std::mem::size_of::<u8>());
+
+let mut chars = "é".chars();
+// U+00e9: 'latin small letter e with acute'
+assert_eq!(Some('\u{00e9}'), chars.next());
+assert_eq!(None, chars.next());
+
+let mut chars = "é".chars();
+// U+0065: 'latin small letter e'
+assert_eq!(Some('\u{0065}'), chars.next());
+// U+0301: 'combining acute accent'
+assert_eq!(Some('\u{0301}'), chars.next());
+assert_eq!(None, chars.next());
+
+let s = String::from("love: ❤️");
+let v: Vec<char> = s.chars().collect();
+
+assert_eq!(12, std::mem::size_of_val(&s[..]));
+assert_eq!(32, std::mem::size_of_val(&v[..]));
+
+#![feature(char_min)]
+let dist = u32::from(char::MAX) - u32::from(char::MIN);
+let size = (char::MIN..=char::MAX).count() as u32;
+assert!(size < dist);
+
+#![feature(char_min)]
+let c: char = something_which_returns_char();
+assert!(char::MIN <= c);
+
+let value_at_min = u32::from(char::MIN);
+assert_eq!(char::from_u32(value_at_min), Some('\0'));
+
+#![feature(char_min)]
+let dist = u32::from(char::MAX) - u32::from(char::MIN);
+let size = (char::MIN..=char::MAX).count() as u32;
+assert!(size < dist);
+
+let c: char = something_which_returns_char();
+assert!(c <= char::MAX);
+
+let value_at_max = u32::from(char::MAX);
+assert_eq!(char::from_u32(value_at_max), Some('\u{10FFFF}'));
+assert_eq!(char::from_u32(value_at_max + 1), None);
+
+// 𝄞mus<invalid>ic<invalid>
+let v = [
+    0xD834, 0xDD1E, 0x006d, 0x0075, 0x0073, 0xDD1E, 0x0069, 0x0063, 0xD834,
+];
+
+assert_eq!(
+    char::decode_utf16(v)
+        .map(|r| r.map_err(|e| e.unpaired_surrogate()))
+        .collect::<Vec<_>>(),
+    vec![
+        Ok('𝄞'),
+        Ok('m'), Ok('u'), Ok('s'),
+        Err(0xDD1E),
+        Ok('i'), Ok('c'),
+        Err(0xD834)
+    ]
+);
+
+// 𝄞mus<invalid>ic<invalid>
+let v = [
+    0xD834, 0xDD1E, 0x006d, 0x0075, 0x0073, 0xDD1E, 0x0069, 0x0063, 0xD834,
+];
+
+assert_eq!(
+    char::decode_utf16(v)
+       .map(|r| r.unwrap_or(char::REPLACEMENT_CHARACTER))
+       .collect::<String>(),
+    "𝄞mus�ic�"
+);
+
+let c = '💯';
+let i = c as u32;
+
+assert_eq!(128175, i);
+
+let c = char::from_u32(0x2764);
+
+assert_eq!(Some('❤'), c);
+
+
+let c = char::from_u32(0x110000);
+
+assert_eq!(None, c);
+
+let c = '💯';
+let i = c as u32;
+
+assert_eq!(128175, i);
+
+let c = unsafe { char::from_u32_unchecked(0x2764) };
+
+assert_eq!('❤', c);
+
+let c = char::from_digit(4, 10);
+
+assert_eq!(Some('4'), c);
+
+// Decimal 11 is a single digit in base 16
+let c = char::from_digit(11, 16);
+
+assert_eq!(Some('b'), c);
+
+let c = char::from_digit(20, 10);
+
+assert_eq!(None, c);
+
+/ this panics
+let _c = char::from_digit(1, 37);
+
+assert!('1'.is_digit(10));
+assert!('f'.is_digit(16));
+assert!(!'f'.is_digit(10));
+
+// this panics
+'1'.is_digit(37);
+
+assert_eq!('1'.to_digit(10), Some(1));
+assert_eq!('f'.to_digit(16), Some(15));
+
+assert_eq!('f'.to_digit(10), None);
+assert_eq!('z'.to_digit(16), None);
+
+
+// this panics
+let _ = '1'.to_digit(37);
+
+for c in '❤'.escape_unicode() {
+    print!("{c}");
+}
+println!();
+
+println!("{}", '❤'.escape_unicode());
+
+println!("\\u{{2764}}");
+
+assert_eq!('❤'.escape_unicode().to_string(), "\\u{2764}");
+
+for c in '\n'.escape_debug() {
+    print!("{c}");
+}
+println!();
+
+println!("{}", '\n'.escape_debug());
+
+println!("\\n");
+
+assert_eq!('\n'.escape_debug().to_string(), "\\n");
+
+for c in '"'.escape_default() {
+    print!("{c}");
+}
+println!();
+
+println!("{}", '"'.escape_default());
+
+
+println!("\\\"");
+
+assert_eq!('"'.escape_default().to_string(), "\\\"");
+
+let len = 'A'.len_utf8();
+assert_eq!(len, 1);
+
+let len = 'ß'.len_utf8();
+assert_eq!(len, 2);
+
+let len = 'ℝ'.len_utf8();
+assert_eq!(len, 3);
+
+let len = '💣'.len_utf8();
+assert_eq!(len, 4);
+
+// as chars
+let eastern = '東';
+let capital = '京';
+
+// both can be represented as three bytes
+assert_eq!(3, eastern.len_utf8());
+assert_eq!(3, capital.len_utf8());
+
+// as a &str, these two are encoded in UTF-8
+let tokyo = "東京";
+
+let len = eastern.len_utf8() + capital.len_utf8();
+
+// we can see that they take six bytes total...
+assert_eq!(6, tokyo.len());
+
+// ... just like the &str
+assert_eq!(len, tokyo.len());
+
+let n = 'ß'.len_utf16();
+assert_eq!(n, 1);
+
+let len = '💣'.len_utf16();
+assert_eq!(len, 2);
+
+let mut b = [0; 2];
+
+let result = 'ß'.encode_utf8(&mut b);
+
+assert_eq!(result, "ß");
+
+assert_eq!(result.len(), 2);
+
+let mut b = [0; 1];
+
+// this panics
+'ß'.encode_utf8(&mut b);
+
+let mut b = [0; 2];
+
+let result = '𝕊'.encode_utf16(&mut b);
+
+assert_eq!(result.len(), 2);
+
+let mut b = [0; 1];
+
+// this panics
+'𝕊'.encode_utf16(&mut b);
+
+assert!('a'.is_alphabetic());
+assert!('京'.is_alphabetic());
+
+let c = '💝';
+// love is many things, but it is not alphabetic
+assert!(!c.is_alphabetic());
+
+assert!('a'.is_lowercase());
+assert!('δ'.is_lowercase());
+assert!(!'A'.is_lowercase());
+assert!(!'Δ'.is_lowercase());
+
+// The various Chinese scripts and punctuation do not have case, and so:
+assert!(!'中'.is_lowercase());
+assert!(!' '.is_lowercase());
+
+#![feature(const_unicode_case_lookup)]
+const CAPITAL_DELTA_IS_LOWERCASE: bool = 'Δ'.is_lowercase();
+assert!(!CAPITAL_DELTA_IS_LOWERCASE);
+
+
+assert!(!'a'.is_uppercase());
+assert!(!'δ'.is_uppercase());
+assert!('A'.is_uppercase());
+assert!('Δ'.is_uppercase());
+
+// The various Chinese scripts and punctuation do not have case, and so:
+assert!(!'中'.is_uppercase());
+assert!(!' '.is_uppercase());
+
+#![feature(const_unicode_case_lookup)]
+const CAPITAL_DELTA_IS_UPPERCASE: bool = 'Δ'.is_uppercase();
+assert!(CAPITAL_DELTA_IS_UPPERCASE);
+
+assert!(' '.is_whitespace());
+
+// line break
+assert!('\n'.is_whitespace());
+
+// a non-breaking space
+assert!('\u{A0}'.is_whitespace());
+
+assert!(!'越'.is_whitespace());
+
+
+assert!('٣'.is_alphanumeric());
+assert!('7'.is_alphanumeric());
+assert!('৬'.is_alphanumeric());
+assert!('¾'.is_alphanumeric());
+assert!('①'.is_alphanumeric());
+assert!('K'.is_alphanumeric());
+assert!('و'.is_alphanumeric());
+assert!('藏'.is_alphanumeric());
+
+
+// U+009C, STRING TERMINATOR
+assert!(''.is_control());
+assert!(!'q'.is_control());
+
+assert!('٣'.is_numeric());
+assert!('7'.is_numeric());
+assert!('৬'.is_numeric());
+assert!('¾'.is_numeric());
+assert!('①'.is_numeric());
+assert!(!'K'.is_numeric());
+assert!(!'و'.is_numeric());
+assert!(!'藏'.is_numeric());
+assert!(!'三'.is_numeric());
+
+for c in 'İ'.to_lowercase() {
+    print!("{c}");
+}
+println!();
+
+println!("{}", 'İ'.to_lowercase());
+
+println!("i\u{307}");
+
+assert_eq!('C'.to_lowercase().to_string(), "c");
+
+// Sometimes the result is more than one character:
+assert_eq!('İ'.to_lowercase().to_string(), "i\u{307}");
+
+// Characters that do not have both uppercase and lowercase
+// convert into themselves.
+assert_eq!('山'.to_lowercase().to_string(), "山");
+
+for c in 'ß'.to_uppercase() {
+    print!("{c}");
+}
+println!();
+
+println!("{}", 'ß'.to_uppercase());
+
+println!("SS");
+
+
+assert_eq!('c'.to_uppercase().to_string(), "C");
+
+// Sometimes the result is more than one character:
+assert_eq!('ß'.to_uppercase().to_string(), "SS");
+
+// Characters that do not have both uppercase and lowercase
+// convert into themselves.
+assert_eq!('山'.to_uppercase().to_string(), "山");
+
+let upper_i = 'i'.to_uppercase().to_string();
+
+let upper_i = 'i'.to_uppercase().to_string();
+
+assert_eq!(upper_i, "I");
+
+let ascii = 'a';
+let non_ascii = '❤';
+
+assert!(ascii.is_ascii());
+assert!(!non_ascii.is_ascii());
+
+let ascii = 'a';
+let non_ascii = '❤';
+
+assert_eq!('A', ascii.to_ascii_uppercase());
+assert_eq!('❤', non_ascii.to_ascii_uppercase());
+
+let ascii = 'A';
+let non_ascii = '❤';
+
+assert_eq!('a', ascii.to_ascii_lowercase());
+assert_eq!('❤', non_ascii.to_ascii_lowercase());
+
+let upper_a = 'A';
+let lower_a = 'a';
+let lower_z = 'z';
+
+assert!(upper_a.eq_ignore_ascii_case(&lower_a));
+assert!(upper_a.eq_ignore_ascii_case(&upper_a));
+assert!(!upper_a.eq_ignore_ascii_case(&lower_z));
+
+let mut ascii = 'a';
+
+ascii.make_ascii_uppercase();
+
+assert_eq!('A', ascii);
+
+let mut ascii = 'A';
+
+ascii.make_ascii_lowercase();
+
+assert_eq!('a', ascii);
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(uppercase_a.is_ascii_alphabetic());
+assert!(uppercase_g.is_ascii_alphabetic());
+assert!(a.is_ascii_alphabetic());
+assert!(g.is_ascii_alphabetic());
+assert!(!zero.is_ascii_alphabetic());
+assert!(!percent.is_ascii_alphabetic());
+assert!(!space.is_ascii_alphabetic());
+assert!(!lf.is_ascii_alphabetic());
+assert!(!esc.is_ascii_alphabetic());
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(uppercase_a.is_ascii_uppercase());
+assert!(uppercase_g.is_ascii_uppercase());
+assert!(!a.is_ascii_uppercase());
+assert!(!g.is_ascii_uppercase());
+assert!(!zero.is_ascii_uppercase());
+assert!(!percent.is_ascii_uppercase());
+assert!(!space.is_ascii_uppercase());
+assert!(!lf.is_ascii_uppercase());
+assert!(!esc.is_ascii_uppercase());
+
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(!uppercase_a.is_ascii_lowercase());
+assert!(!uppercase_g.is_ascii_lowercase());
+assert!(a.is_ascii_lowercase());
+assert!(g.is_ascii_lowercase());
+assert!(!zero.is_ascii_lowercase());
+assert!(!percent.is_ascii_lowercase());
+assert!(!space.is_ascii_lowercase());
+assert!(!lf.is_ascii_lowercase());
+assert!(!esc.is_ascii_lowercase());
+
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(uppercase_a.is_ascii_alphanumeric());
+assert!(uppercase_g.is_ascii_alphanumeric());
+assert!(a.is_ascii_alphanumeric());
+assert!(g.is_ascii_alphanumeric());
+assert!(zero.is_ascii_alphanumeric());
+assert!(!percent.is_ascii_alphanumeric());
+assert!(!space.is_ascii_alphanumeric());
+assert!(!lf.is_ascii_alphanumeric());
+assert!(!esc.is_ascii_alphanumeric());
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(!uppercase_a.is_ascii_digit());
+assert!(!uppercase_g.is_ascii_digit());
+assert!(!a.is_ascii_digit());
+assert!(!g.is_ascii_digit());
+assert!(zero.is_ascii_digit());
+assert!(!percent.is_ascii_digit());
+assert!(!space.is_ascii_digit());
+assert!(!lf.is_ascii_digit());
+assert!(!esc.is_ascii_digit());
+
+#![feature(is_ascii_octdigit)]
+
+let uppercase_a = 'A';
+let a = 'a';
+let zero = '0';
+let seven = '7';
+let nine = '9';
+let percent = '%';
+let lf = '\n';
+
+assert!(!uppercase_a.is_ascii_octdigit());
+assert!(!a.is_ascii_octdigit());
+assert!(zero.is_ascii_octdigit());
+assert!(seven.is_ascii_octdigit());
+assert!(!nine.is_ascii_octdigit());
+assert!(!percent.is_ascii_octdigit());
+assert!(!lf.is_ascii_octdigit());
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(uppercase_a.is_ascii_hexdigit());
+assert!(!uppercase_g.is_ascii_hexdigit());
+assert!(a.is_ascii_hexdigit());
+assert!(!g.is_ascii_hexdigit());
+assert!(zero.is_ascii_hexdigit());
+assert!(!percent.is_ascii_hexdigit());
+assert!(!space.is_ascii_hexdigit());
+assert!(!lf.is_ascii_hexdigit());
+assert!(!esc.is_ascii_hexdigit());
+
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(!uppercase_a.is_ascii_punctuation());
+assert!(!uppercase_g.is_ascii_punctuation());
+assert!(!a.is_ascii_punctuation());
+assert!(!g.is_ascii_punctuation());
+assert!(!zero.is_ascii_punctuation());
+assert!(percent.is_ascii_punctuation());
+assert!(!space.is_ascii_punctuation());
+assert!(!lf.is_ascii_punctuation());
+assert!(!esc.is_ascii_punctuation());
+
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(uppercase_a.is_ascii_graphic());
+assert!(uppercase_g.is_ascii_graphic());
+assert!(a.is_ascii_graphic());
+assert!(g.is_ascii_graphic());
+assert!(zero.is_ascii_graphic());
+assert!(percent.is_ascii_graphic());
+assert!(!space.is_ascii_graphic());
+assert!(!lf.is_ascii_graphic());
+assert!(!esc.is_ascii_graphic());
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(!uppercase_a.is_ascii_whitespace());
+assert!(!uppercase_g.is_ascii_whitespace());
+assert!(!a.is_ascii_whitespace());
+assert!(!g.is_ascii_whitespace());
+assert!(!zero.is_ascii_whitespace());
+assert!(!percent.is_ascii_whitespace());
+assert!(space.is_ascii_whitespace());
+assert!(lf.is_ascii_whitespace());
+assert!(!esc.is_ascii_whitespace());
+
+let uppercase_a = 'A';
+let uppercase_g = 'G';
+let a = 'a';
+let g = 'g';
+let zero = '0';
+let percent = '%';
+let space = ' ';
+let lf = '\n';
+let esc = '\x1b';
+
+assert!(!uppercase_a.is_ascii_control());
+assert!(!uppercase_g.is_ascii_control());
+assert!(!a.is_ascii_control());
+assert!(!g.is_ascii_control());
+assert!(!zero.is_ascii_control());
+assert!(!percent.is_ascii_control());
+assert!(!space.is_ascii_control());
+assert!(lf.is_ascii_control());
+assert!(esc.is_ascii_control());
+
+
+let c: char = 'a';
+let s: String = String::from(c);
+assert_eq!("a", &s[..]);
+
+use std::mem;
+
+let c = '⚙';
+let u = u128::from(c);
+assert!(16 == mem::size_of_val(&u))
+
+use std::mem;
+
+let c = 'c';
+let u = u32::from(c);
+assert!(4 == mem::size_of_val(&u))
+
+
+use std::mem;
+
+let c = '👤';
+let u = u64::from(c);
+assert!(8 == mem::size_of_val(&u))
+
+use std::mem;
+
+let u = 32 as u8;
+let c = char::from(u);
+assert!(4 == mem::size_of_val(&c))
+
+assert_eq!("Hello world".find('o'), Some(4));
+
+let trans_rights = '⚧'; // U+26A7
+let ninjas = '🥷'; // U+1F977
+assert_eq!(u16::try_from(trans_rights), Ok(0x26A7_u16));
+assert!(u16::try_from(ninjas).is_err());
+
+let a = 'ÿ'; // U+00FF
+let b = 'Ā'; // U+0100
+assert_eq!(u8::try_from(a), Ok(0xFF_u8));
+assert!(u8::try_from(b).is_err());
+
+
+
+let a = 'ÿ'; // U+00FF
+let b = 'Ā'; // U+0100
+assert_eq!(u8::try_from(a), Ok(0xFF_u8));
+assert!(u8::try_from(b).is_err());
+
+
